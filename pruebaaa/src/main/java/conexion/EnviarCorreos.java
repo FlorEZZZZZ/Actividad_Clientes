@@ -6,7 +6,7 @@ import java.util.Properties;
 
 public class EnviarCorreos {
     public  void enviarcorreo(String encabezado, String cuerpo) {
-        String destinatario = "florezrincon2@gmail.com";
+        String destinatario = "elpalitoinsano@gmail.com";
         String remitente = "florezrincon2@gmail.com";
         String clave = "yxkq hdty bpfr cajn";
 

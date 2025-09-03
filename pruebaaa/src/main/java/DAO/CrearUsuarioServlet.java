@@ -106,10 +106,11 @@ public class CrearUsuarioServlet extends HttpServlet {
             System.out.println("DEBUG: Filas afectadas: " + rowsAffected);
             
             if (rowsAffected > 0) {
-            	EnviarCorreos envc = new EnviarCorreos();
+            	
                 session.setAttribute("success", "Usuario creado correctamente");
-                envc.enviarcorreo("Exito al Crear Usuario", "El usuario " + nombres + apellidos +" identificado con la numero de cedula: " + cedula + "Fue creado con exito");
                 response.sendRedirect(request.getContextPath() + "/index.jsp");
+                EnviarCorreos envc = new EnviarCorreos();
+                envc.enviarcorreo("Exito al Crear Usuario", "El usuario " + nombres + apellidos +" identificado con la numero de cedula: " + cedula + "Fue creado con exito");
             } else {
                 session.setAttribute("error", "No se pudo crear el usuario");
                 response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
