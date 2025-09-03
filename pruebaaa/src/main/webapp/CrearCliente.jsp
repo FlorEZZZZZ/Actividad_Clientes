@@ -92,6 +92,7 @@
                 
                 <div class="form-group text-center" style="margin-top: 30px;">
                     <button type="submit" class="btn btn-success btn-lg">➕ Crear Usuario</button>
+                    
                     <a href="index.jsp" class="btn btn-default btn-lg">❌ Cancelar</a>
                 </div>
             </form>

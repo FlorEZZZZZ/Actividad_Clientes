@@ -12,7 +12,8 @@
 	<classpathentry kind="con" path="org.eclipse.jst.server.core.container/org.eclipse.jst.server.tomcat.runtimeTarget/Apache Tomcat v10.1"/>
 	<classpathentry kind="lib" path="C:/Users/SENA/Downloads/openpdf-3.0.0.jar"/>
 	<classpathentry kind="lib" path="C:/Users/SENA/Downloads/mysql-connector-j-9.4.0/mysql-connector-j-9.4.0.jar"/>
-	<classpathentry kind="lib" path="C:/Users/SENA/Downloads/jakarta.mail-api-2.1.2.jar"/>
-	<classpathentry kind="lib" path="C:/Users/SENA/Downloads/jakarta.activation-api-2.1.2.jar"/>
+	<classpathentry kind="lib" path="C:/Users/SENA/Downloads/jakarta.mail-2.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/SENA/Downloads/jakarta.activation-2.0.1.jar"/>
+	<classpathentry kind="lib" path="C:/Users/SENA/Downloads/jakarta.activation-api-2.0.1.jar"/>
 	<classpathentry kind="output" path="build/classes"/>
 </classpath>

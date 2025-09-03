@@ -140,6 +140,7 @@ body {
 							<th>Teléfono</th>
 							<th>Rol</th>
 							<th>Contraseña</th>
+							<th>Correo</th>
 							<th style="width: 220px;">Acciones</th>
 						</tr>
 					</thead>
@@ -156,6 +157,7 @@ body {
 							<td><%= rs.getString("telefono") %></td>
 							<td><span class="badge badge-rol"><%= rs.getString("rol") %></span></td>
 							<td><%= rs.getString("password") %></td>
+							<td><%= rs.getString("correo") %></td>
 							<td><a
 								href="VerClienteServlet?idCliente=<%= rs.getInt("idCliente") %>"
 								class="btn btn-info btn-xs">👁 Ver</a> <a

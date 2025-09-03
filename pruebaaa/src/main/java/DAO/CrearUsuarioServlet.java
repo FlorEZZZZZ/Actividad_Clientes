@@ -1,6 +1,7 @@
 package DAO;
 
 import conexion.Conexion;
+
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,7 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.sql.ResultSet;
-
+import conexion.EnviarCorreos;
 @WebServlet("/CrearUsuarioServlet")
 public class CrearUsuarioServlet extends HttpServlet {
     
@@ -105,17 +106,19 @@ public class CrearUsuarioServlet extends HttpServlet {
             System.out.println("DEBUG: Filas afectadas: " + rowsAffected);
             
             if (rowsAffected > 0) {
+            	EnviarCorreos envc = new EnviarCorreos();
                 session.setAttribute("success", "Usuario creado correctamente");
+                envc.enviarcorreo("Exito al Crear Usuario", "El usuario " + nombres + apellidos +" identificado con la numero de cedula: " + cedula + "Fue creado con exito");
                 response.sendRedirect(request.getContextPath() + "/index.jsp");
             } else {
                 session.setAttribute("error", "No se pudo crear el usuario");
-                response.sendRedirect(request.getContextPath() + "/crearCliente.jsp");
+                response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
             }
             
         } catch (Exception e) {
             e.printStackTrace();
             session.setAttribute("error", "Error al crear usuario: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/crearCliente.jsp");
+            response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
         } finally {
             if (con != null) {
                 try { con.close(); } catch (Exception e) { }
@@ -127,6 +130,6 @@ public class CrearUsuarioServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/crearCliente.jsp");
+        response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
     }
 }
