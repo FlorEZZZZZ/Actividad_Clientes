@@ -64,7 +64,7 @@
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="direccion">Dirección</label>
-                            <textarea class="form-control" id="direccion" name="direccion" rows="3"></textarea>
+                            <input class="form-control" id="direccion" name="direccion" rows="3"></input>
                         </div>
                     </div>
                     <div class="col-md-6">
@@ -73,7 +73,14 @@
                             <input type="tel" class="form-control" id="telefono" name="telefono">
                         </div>
                     </div>
-                </div>
+                
+                <div class="col-md-6">
+                        <div class="form-group">
+                            <label for="correo">Correo Electronico</label>
+                            <input type="text" class="form-control" id="correo" name="correo">
+                        </div>
+                        </div>
+                        
                 
                 <div class="row">
                     <div class="col-md-6">
@@ -82,6 +89,8 @@
                             <input type="password" class="form-control" id="password" name="password" required minlength="6">
                         </div>
                     </div>
+                    </div>
+                    
                     <div class="col-md-6">
                         <div class="form-group">
                             <label for="confirmPassword" class="required-field">Confirmar Contraseña</label>

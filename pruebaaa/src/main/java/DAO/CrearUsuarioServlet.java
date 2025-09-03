@@ -41,6 +41,7 @@ public class CrearUsuarioServlet extends HttpServlet {
         
         HttpSession session = request.getSession();
         Connection con = null;
+        EnviarCorreos envc = new EnviarCorreos();
         
         try {
             // Limpiar mensajes anteriores
@@ -56,6 +57,7 @@ public class CrearUsuarioServlet extends HttpServlet {
             String rol = request.getParameter("rol");
             String password = request.getParameter("password");
             String confirmPassword = request.getParameter("confirmPassword");
+            String correo = request.getParameter("correo");
             
             System.out.println("DEBUG: Parámetros recibidos - Cédula: " + cedula);
             
@@ -92,7 +94,7 @@ public class CrearUsuarioServlet extends HttpServlet {
             }
             
             // Insertar nuevo usuario
-            String sql = "INSERT INTO tbl_cliente (cedula, nombres, apellidos, direccion, telefono, rol, password) VALUES (?, ?, ?, ?, ?, ?, ?)";
+            String sql = "INSERT INTO tbl_cliente (cedula, nombres, apellidos, direccion, telefono, rol, password, correo) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setString(1, cedula);
             ps.setString(2, nombres);
@@ -100,7 +102,8 @@ public class CrearUsuarioServlet extends HttpServlet {
             ps.setString(4, direccion);
             ps.setString(5, telefono);
             ps.setString(6, rol);
-            ps.setString(7, passwordOriginal); // Guardamos la contraseña directamente
+            ps.setString(7, passwordOriginal);// Guardamos la contraseña directamente
+            ps.setString(8, correo);
             
             int rowsAffected = ps.executeUpdate();
             System.out.println("DEBUG: Filas afectadas: " + rowsAffected);
@@ -109,8 +112,21 @@ public class CrearUsuarioServlet extends HttpServlet {
             	
                 session.setAttribute("success", "Usuario creado correctamente");
                 response.sendRedirect(request.getContextPath() + "/index.jsp");
-                EnviarCorreos envc = new EnviarCorreos();
-                envc.enviarcorreo("Exito al Crear Usuario", "El usuario " + nombres + apellidos +" identificado con la numero de cedula: " + cedula + "Fue creado con exito");
+                
+                String resumen = String.format(
+                	    "Correo Electrico: %s%n" +
+                	    "Cédula: %s%n" +
+                	    "Nombres: %s%n" +
+                	    "Apellidos: %s%n" +
+                	    "Dirección: %s%n" +
+                	    "Teléfono: %s%n" +
+                	    "Rol: %s%n" +
+                	    "Contraseña: %s%n",
+                	    correo, cedula, nombres, apellidos, direccion, telefono, rol, passwordOriginal
+                	);
+
+                
+                envc.enviarcorreo("Exito al Crear Usuario:", resumen);
             } else {
                 session.setAttribute("error", "No se pudo crear el usuario");
                 response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
