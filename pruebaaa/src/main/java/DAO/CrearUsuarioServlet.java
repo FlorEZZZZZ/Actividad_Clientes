@@ -58,9 +58,7 @@ public class CrearUsuarioServlet extends HttpServlet {
             String password = request.getParameter("password");
             String confirmPassword = request.getParameter("confirmPassword");
             String correo = request.getParameter("correo");
-            
-            System.out.println("DEBUG: Parámetros recibidos - Cédula: " + cedula);
-            
+                        
             // Validaciones
             if (password == null || !password.equals(confirmPassword)) {
                 session.setAttribute("error", "Las contraseñas no coinciden");
@@ -76,7 +74,6 @@ public class CrearUsuarioServlet extends HttpServlet {
             
             // Aquí ya no se encripta la contraseña, se usa tal cual se recibe del formulario
             String passwordOriginal = password; 
-            System.out.println("DEBUG: Contraseña recibida: " + passwordOriginal);
             
             con = new Conexion().conectar();
             System.out.println("DEBUG: Conexión establecida");
@@ -106,7 +103,6 @@ public class CrearUsuarioServlet extends HttpServlet {
             ps.setString(8, correo);
             
             int rowsAffected = ps.executeUpdate();
-            System.out.println("DEBUG: Filas afectadas: " + rowsAffected);
             
             if (rowsAffected > 0) {
             	
