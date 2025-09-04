@@ -2,20 +2,20 @@ package DAO;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.util.Properties;
+import conexion.EnviarCorreos;
 
-import jakarta.mail.Message;
-import jakarta.mail.MessagingException;
-import jakarta.mail.PasswordAuthentication;
-import jakarta.mail.Session;
-import jakarta.mail.Transport;
-import jakarta.mail.internet.InternetAddress;
-import jakarta.mail.internet.MimeMessage;
+import conexion.Conexion;
+import jakarta.servlet.RequestDispatcher;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 
 @WebServlet("/EnviarCorreosServlet")
 public class EnviarCorreosServlet extends HttpServlet {
@@ -26,44 +26,53 @@ public class EnviarCorreosServlet extends HttpServlet {
             throws ServletException, IOException {
 
         response.setContentType("text/html;charset=UTF-8");
-        PrintWriter out = response.getWriter();
 
-        // Configuración para Gmail
-        Properties props = new Properties();
-        props.put("mail.smtp.auth", "true");
-        props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.smtp.host", "smtp.gmail.com");
-        props.put("mail.smtp.port", "587");
-
-        // ✅ Usa siempre una contraseña de aplicación, no tu clave normal
-        final String username = "florezrincon2@gmail.com";
-        final String password = "yxkq hdty bpfr cajn";
-
-        Session session = Session.getInstance(props,
-            new jakarta.mail.Authenticator() {
-                @Override
-                protected PasswordAuthentication getPasswordAuthentication() {
-                    return new PasswordAuthentication(username, password);
-                }
-            });
+String idParam = request.getParameter("idCliente");
+        
+        if (idParam == null || idParam.isEmpty()) {
+            response.sendRedirect("index.jsp?error=ID no proporcionado");
+            return;
+        }
 
         try {
-            // Crear mensaje
-            Message message = new MimeMessage(session);
-            message.setFrom(new InternetAddress(username, "Caleb 😎")); // nombre opcional
-            message.setRecipients(Message.RecipientType.TO,
-                    InternetAddress.parse("elpalitoinsano@gmail.com")); // destinatario
-            message.setSubject("Prueba Jakarta Mail en Tomcat 10.1");
-            message.setText("¡Hola! Este es un correo de prueba enviado desde un Servlet.");
+            int idCliente = Integer.parseInt(idParam);
+            Connection con = new Conexion().conectar();
+            
+            // Consulta CORRECTA según tu estructura de tabla
+            String sql = "SELECT * FROM tbl_cliente WHERE idCliente = ?";
+            PreparedStatement ps = con.prepareStatement(sql);
+            ps.setInt(1, idCliente);
+            ResultSet rs = ps.executeQuery();
 
-            // Enviar correo
-            Transport.send(message);
-
-            out.println("<h3>✅ Correo enviado correctamente</h3>");
-
-        } catch (MessagingException e) {
-            out.println("<h3>❌ Error al enviar el correo: " + e.getMessage() + "</h3>");
+            if (rs.next()) {
+                // recoger los datos
+                request.setAttribute("cliente", rs);
+                int id = rs.getInt("idCliente"); 
+        		String cedula = rs.getString("cedula");
+        		String nombres= rs.getString("nombres");
+        		String apellidos = rs.getString("apellidos");
+        		String direccion = rs.getString("direccion");
+        		String telefono = rs.getString("telefono"); 
+        		String rol = rs.getString("rol");
+        		String password = rs.getString("password"); 
+        		String correo = rs.getString("correo");
+        		EnviarCorreos envc = new EnviarCorreos();
+        		envc.EnviarDocumentos(id, cedula, nombres, apellidos, direccion, telefono, rol, password, correo);
+                response.sendRedirect(request.getContextPath() + "/index.jsp");
+            } else {
+                response.sendRedirect("index.jsp?error=Cliente no encontrado");
+            }
+            
+            con.close();
+            
+        } catch (NumberFormatException e) {
+            response.sendRedirect("index.jsp?error=ID inválido");
+        } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("index.jsp?error=Error al obtener cliente");
         }
+        
     }
 }
+
+
