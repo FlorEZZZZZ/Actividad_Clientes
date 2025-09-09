@@ -21,7 +21,7 @@ public class VerClienteServlet extends HttpServlet {
         response.setContentType("text/html;charset=UTF-8");
         
         // Obtener el parámetro CORRECTO (debe coincidir con el enlace)
-        String idParam = request.getParameter("idCliente");
+        String idParam = request.getParameter("id");
         
         if (idParam == null || idParam.isEmpty()) {
             response.sendRedirect("index.jsp?error=ID no proporcionado");
@@ -33,7 +33,7 @@ public class VerClienteServlet extends HttpServlet {
             Connection con = new Conexion().conectar();
             
             // Consulta CORRECTA según tu estructura de tabla
-            String sql = "SELECT * FROM tbl_cliente WHERE idCliente = ?";
+            String sql = "SELECT * FROM tbl_cliente WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, idCliente);
             ResultSet rs = ps.executeQuery();

@@ -10,8 +10,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-@WebServlet("/BorrarClienteServlet")
-public class BorrarClienteServlet extends HttpServlet {
+@WebServlet("/BorrarDatosServlet")
+public class BorrarDatosServlet extends HttpServlet {
     
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -31,23 +31,23 @@ public class BorrarClienteServlet extends HttpServlet {
             int idCliente = Integer.parseInt(idParam);
             con = new Conexion().conectar();
             
-            String sql = "DELETE FROM tbl_usuarios WHERE id_usuario = ?";
+            String sql = "DELETE FROM tbl_libro_general WHERE id = ?";
             PreparedStatement ps = con.prepareStatement(sql);
             ps.setInt(1, idCliente);
             
             int rowsAffected = ps.executeUpdate();
             
             if (rowsAffected > 0) {
-                response.sendRedirect("index.jsp?success=Cliente+eliminado+correctamente");
+                response.sendRedirect("index.jsp?success=Dato+eliminado+correctamente");
             } else {
-                response.sendRedirect("index.jsp?error=No+se+pudo+eliminar+el+cliente");
+                response.sendRedirect("index.jsp?error=No+se+pudo+eliminar+el+Dato");
             }
             
         } catch (NumberFormatException e) {
             response.sendRedirect("index.jsp?error=ID+invalido");
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect("index.jsp?error=Error+al+eliminar+cliente:+"+e.getMessage());
+            response.sendRedirect("index.jsp?error=Error+al+eliminar+Dato:+"+e.getMessage());
         } finally {
             if (con != null) {
                 try { con.close(); } catch (Exception e) { }

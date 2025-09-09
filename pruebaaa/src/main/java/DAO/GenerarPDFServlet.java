@@ -26,7 +26,7 @@ public class GenerarPDFServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        String idParam = request.getParameter("idCliente");
+        String idParam = request.getParameter("id");
         if (idParam == null || idParam.isEmpty()) {
             response.sendRedirect("index.jsp?error=ID+no+proporcionado");
             return;
@@ -47,11 +47,11 @@ public class GenerarPDFServlet extends HttpServlet {
             try {
                 Class.forName("com.mysql.cj.jdbc.Driver");
                 Connection con = DriverManager.getConnection(
-                        "jdbc:mysql://localhost:3306/karvet", "root", "2995196");
+                        "jdbc:mysql://localhost:3306/ipuc_vista_hermosa", "root", "2995196");
 
                 PreparedStatement ps = con.prepareStatement(
-                    "SELECT idCliente, cedula, nombres, apellidos, direccion, telefono, rol, password " +
-                    "FROM tbl_cliente WHERE idCliente=?"
+                    "SELECT id, cedula, nombres, apellidos, direccion, telefono, rol, password " +
+                    "FROM tbl_usuarios WHERE id=?"
                 );
                 ps.setInt(1, idCliente);
                 ResultSet rs = ps.executeQuery();
@@ -59,7 +59,7 @@ public class GenerarPDFServlet extends HttpServlet {
                 if (rs.next()) {
                     documento.add(new Paragraph("Datos del Usuario"));
                     documento.add(new Paragraph("-------------------"));
-                    documento.add(new Paragraph("ID Cliente: " + rs.getInt("idCliente")));
+                    documento.add(new Paragraph("ID Cliente: " + rs.getInt("id")));
                     documento.add(new Paragraph("Cédula: " + rs.getInt("cedula")));
                     documento.add(new Paragraph("Nombres: " + rs.getString("nombres")));
                     documento.add(new Paragraph("Apellidos: " + rs.getString("apellidos")));

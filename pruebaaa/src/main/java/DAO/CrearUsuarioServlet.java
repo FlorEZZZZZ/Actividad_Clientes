@@ -5,144 +5,197 @@ import conexion.Conexion;
 import java.io.IOException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.sql.ResultSet;
 import conexion.EnviarCorreos;
+
 @WebServlet("/CrearUsuarioServlet")
 public class CrearUsuarioServlet extends HttpServlet {
-    
-    // Eliminamos la función de encriptarPassword ya que no se requiere hashing.
-    // private String encriptarPassword(String password) {
-    //     try {
-    //         MessageDigest digest = MessageDigest.getInstance("SHA-256");
-    //         byte[] hash = digest.digest(password.getBytes("UTF-8"));
-    //         StringBuilder hexString = new StringBuilder();
-            
-    //         for (byte b : hash) {
-    //             String hex = Integer.toHexString(0xff & b);
-    //             if (hex.length() == 1) hexString.append('0');
-    //             hexString.append(hex);
-    //         }
-    //         
-    //         return hexString.toString();
-    //     } catch (Exception e) {
-    //         throw new RuntimeException(e);
-    //     }
-    // }
-    
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        
+
         HttpSession session = request.getSession();
         Connection con = null;
         EnviarCorreos envc = new EnviarCorreos();
-        
+
         try {
-            // Limpiar mensajes anteriores
             session.removeAttribute("error");
             session.removeAttribute("success");
-            
-            // Obtener parámetros
-            String cedula = request.getParameter("cedula");
+
+            // 📌 Parámetros
             String nombres = request.getParameter("nombres");
             String apellidos = request.getParameter("apellidos");
+            String nombres_apellidos = nombres + " " + apellidos;
+            String tipoDocumento = request.getParameter("tipoDocumento");
+            String numeroDocumento = request.getParameter("numeroDocumento");
+            String fechaNacimiento = request.getParameter("fechaNacimiento");
+            String lugarNacimiento = request.getParameter("lugarNacimiento");
+            String nivelEscolaridad = request.getParameter("nivelEscolaridad");
+            String ocupacionActual = request.getParameter("ocupacionActual");
             String direccion = request.getParameter("direccion");
             String telefono = request.getParameter("telefono");
-            String rol = request.getParameter("rol");
-            String password = request.getParameter("password");
-            String confirmPassword = request.getParameter("confirmPassword");
             String correo = request.getParameter("correo");
-                        
-            // Validaciones
-            if (password == null || !password.equals(confirmPassword)) {
-                session.setAttribute("error", "Las contraseñas no coinciden");
-                response.sendRedirect(request.getContextPath() + "/crearCliente.jsp");
-                return;
-            }
-            
-            if (password.length() < 6) {
-                session.setAttribute("error", "La contraseña debe tener al menos 6 caracteres");
-                response.sendRedirect(request.getContextPath() + "/crearCliente.jsp");
-                return;
-            }
-            
-            // Aquí ya no se encripta la contraseña, se usa tal cual se recibe del formulario
-            String passwordOriginal = password; 
-            
+            String estadoCivil = request.getParameter("estadoCivil");
+            String tribunalEclesiastico = request.getParameter("tribunalEclesiastico");
+            String conceptoTribunal = request.getParameter("conceptoTribunal");
+            String archivoConcepto = request.getParameter("archivoConcepto");
+            String nombreConyuge = request.getParameter("nombreConyuge");
+            String numeroHijos = request.getParameter("numeroHijos");
+            String nombresHijos = request.getParameter("nombresHijos");
+            String fechaConversion = request.getParameter("fechaEntrega");
+            String haEstadoApartado = request.getParameter("apartado");
+            String fechaReconciliacion = request.getParameter("fechaReconciliacion");
+            String fechaRecepcionEspiritu = request.getParameter("fechaEspirituSanto");
+            String fechaBautismo = request.getParameter("fechabautismo");
+            String congregacionBautismo = request.getParameter("congregacionbautismo");
+            String pastorBautismo = request.getParameter("pastorbautismo");
+            String cargosIglesia = request.getParameter("cargosiglesia");
+            String password = request.getParameter("password");
+
             con = new Conexion().conectar();
-            System.out.println("DEBUG: Conexión establecida");
-            
-            // Verificar si la cédula ya existe
-            String sqlVerificar = "SELECT COUNT(*) FROM tbl_cliente WHERE cedula = ?";
+
+            // 📌 Verificar documento duplicado
+            String sqlVerificar = "SELECT COUNT(*) FROM tbl_usuarios WHERE numero_documento = ?";
             PreparedStatement psVerificar = con.prepareStatement(sqlVerificar);
-            psVerificar.setString(1, cedula);
+            psVerificar.setString(1, numeroDocumento);
             ResultSet rs = psVerificar.executeQuery();
-            
+
             if (rs.next() && rs.getInt(1) > 0) {
-                session.setAttribute("error", "La cédula " + cedula + " ya está registrada");
-                response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
+                session.setAttribute("error", "El documento " + numeroDocumento + " ya está registrado");
+                response.sendRedirect(request.getContextPath() + "/CrearUsuario.jsp");
                 return;
             }
-            
-            // Insertar nuevo usuario
-            String sql = "INSERT INTO tbl_cliente (cedula, nombres, apellidos, direccion, telefono, rol, password, correo) VALUES (?, ?, ?, ?, ?, ?, ?,?)";
+
+            // 📌 Insert
+            String sql = "INSERT INTO tbl_usuarios " +
+                    "(nombres_apellidos, tipo_documento, numero_documento, fecha_nacimiento, lugar_nacimiento, " +
+                    "nivel_escolaridad, ocupacion_actual, direccion_residencia, telefono, correo_electronico, estado_civil, " +
+                    "tribunal_eclesiastico, concepto_tribunal, archivo_concepto, nombre_conyuge, numero_hijos, nombres_hijos, " +
+                    "fecha_conversion, ha_estado_apartado, fecha_reconciliacion, fecha_recepcion_espiritu, fecha_bautismo, " +
+                    "congregacion_bautismo, pastor_bautismo, cargos_iglesia, password) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+
             PreparedStatement ps = con.prepareStatement(sql);
-            ps.setString(1, cedula);
-            ps.setString(2, nombres);
-            ps.setString(3, apellidos);
-            ps.setString(4, direccion);
-            ps.setString(5, telefono);
-            ps.setString(6, rol);
-            ps.setString(7, passwordOriginal);// Guardamos la contraseña directamente
-            ps.setString(8, correo);
-            
+            ps.setString(1, nombres_apellidos);
+            ps.setString(2, tipoDocumento);
+            ps.setString(3, numeroDocumento);
+            ps.setString(4, fechaNacimiento); // ⚠️ si este también es DATE en la DB, hay que hacer lo mismo que abajo
+            ps.setString(5, lugarNacimiento);
+            ps.setString(6, nivelEscolaridad);
+            ps.setString(7, ocupacionActual);
+            ps.setString(8, direccion);
+            ps.setString(9, telefono);
+            ps.setString(10, correo);
+            ps.setString(11, estadoCivil);
+            ps.setString(12, tribunalEclesiastico);
+            ps.setString(13, conceptoTribunal);
+            ps.setString(14, archivoConcepto);
+            ps.setString(15, nombreConyuge);
+            ps.setString(16, numeroHijos);
+            ps.setString(17, nombresHijos);
+
+            // ✅ Fechas opcionales
+            if (fechaConversion == null || fechaConversion.isEmpty()) {
+                ps.setNull(18, java.sql.Types.DATE);
+            } else {
+                ps.setDate(18, java.sql.Date.valueOf(fechaConversion));
+            }
+
+            ps.setString(19, haEstadoApartado);
+
+            if (fechaReconciliacion == null || fechaReconciliacion.isEmpty()) {
+                ps.setNull(20, java.sql.Types.DATE);
+            } else {
+                ps.setDate(20, java.sql.Date.valueOf(fechaReconciliacion));
+            }
+
+            if (fechaRecepcionEspiritu == null || fechaRecepcionEspiritu.isEmpty()) {
+                ps.setNull(21, java.sql.Types.DATE);
+            } else {
+                ps.setDate(21, java.sql.Date.valueOf(fechaRecepcionEspiritu));
+            }
+
+            if (fechaBautismo == null || fechaBautismo.isEmpty()) {
+                ps.setNull(22, java.sql.Types.DATE);
+            } else {
+                ps.setDate(22, java.sql.Date.valueOf(fechaBautismo));
+            }
+
+            ps.setString(23, congregacionBautismo);
+            ps.setString(24, pastorBautismo);
+            ps.setString(25, cargosIglesia);
+            ps.setString(26, password);
+
             int rowsAffected = ps.executeUpdate();
-            
+
             if (rowsAffected > 0) {
-            	
                 session.setAttribute("success", "Usuario creado correctamente");
                 response.sendRedirect(request.getContextPath() + "/index.jsp");
-                
-                String resumen = String.format(
-                	    "Correo Electrico: %s%n" +
-                	    "Cédula: %s%n" +
-                	    "Nombres: %s%n" +
-                	    "Apellidos: %s%n" +
-                	    "Dirección: %s%n" +
-                	    "Teléfono: %s%n" +
-                	    "Rol: %s%n" +
-                	    "Contraseña: %s%n",
-                	    correo, cedula, nombres, apellidos, direccion, telefono, rol, passwordOriginal
-                	);
 
-                
-                envc.enviarcorreo("Exito al Crear Usuario:", resumen);
+                String resumen = String.format(
+                        "📋 NUEVO USUARIO REGISTRADO%n" +
+                        "Nombres y Apellidos: %s%n" +
+                        "Tipo de Documento: %s%n" +
+                        "Número de Documento: %s%n" +
+                        "Fecha de Nacimiento: %s%n" +
+                        "Lugar de Nacimiento: %s%n" +
+                        "Nivel Escolaridad: %s%n" +
+                        "Ocupación Actual: %s%n" +
+                        "Dirección: %s%n" +
+                        "Teléfono: %s%n" +
+                        "Correo: %s%n" +
+                        "Estado Civil: %s%n" +
+                        "Tribunal Eclesiástico: %s%n" +
+                        "Concepto Tribunal: %s%n" +
+                        "Archivo Concepto: %s%n" +
+                        "Nombre Cónyuge: %s%n" +
+                        "Número Hijos: %s%n" +
+                        "Nombres Hijos: %s%n" +
+                        "Fecha Conversión: %s%n" +
+                        "Ha estado apartado: %s%n" +
+                        "Fecha Reconciliación: %s%n" +
+                        "Fecha Recepción Espíritu Santo: %s%n" +
+                        "Fecha Bautismo: %s%n" +
+                        "Congregación Bautismo: %s%n" +
+                        "Pastor Bautismo: %s%n" +
+                        "Cargos en la Iglesia: %s%n" +
+                        "Password: %s%n",
+                        nombres_apellidos, tipoDocumento, numeroDocumento, fechaNacimiento, lugarNacimiento,
+                        nivelEscolaridad, ocupacionActual, direccion, telefono, correo,
+                        estadoCivil, tribunalEclesiastico, conceptoTribunal, archivoConcepto,
+                        nombreConyuge, numeroHijos, nombresHijos, fechaConversion, haEstadoApartado,
+                        fechaReconciliacion, fechaRecepcionEspiritu, fechaBautismo,
+                        congregacionBautismo, pastorBautismo, cargosIglesia, password
+                );
+
+
+                envc.enviarcorreo("✅ Nuevo Usuario Creado", resumen);
             } else {
                 session.setAttribute("error", "No se pudo crear el usuario");
-                response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
+                response.sendRedirect(request.getContextPath() + "/CrearUsuario.jsp");
             }
-            
+
         } catch (Exception e) {
             e.printStackTrace();
             session.setAttribute("error", "Error al crear usuario: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
+            response.sendRedirect(request.getContextPath() + "/CrearUsuario.jsp");
         } finally {
             if (con != null) {
                 try { con.close(); } catch (Exception e) { }
             }
         }
     }
-    
-    // Método doGet opcional
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        response.sendRedirect(request.getContextPath() + "/CrearCliente.jsp");
+        response.sendRedirect(request.getContextPath() + "/CrearUsuario.jsp");
     }
 }
